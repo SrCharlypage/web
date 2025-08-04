@@ -1,0 +1,688 @@
+<?php
+require_once 'includes/session.php';
+require_once 'includes/config.php';
+require_once 'includes/functions.php';
+?>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión - Hermandad</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Header Principal */
+        .main-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-bottom: 3px solid #8b5a3c;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #e9eaee, #cdcadf);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(6, 104, 216, 0.3);
+        }
+
+        .logo-img {
+            /* Fijamos un ancho máximo y dejar que la altura se ajuste */
+            max-width: 100px;
+            height: auto;
+        }
+
+        .header-text h1 {
+            color: #8b5a3c;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .header-text p {
+            color: #666;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(139, 90, 60, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            border: 2px solid rgba(139, 90, 60, 0.2);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #8b5a3c, #d4af37);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-info h3 {
+            color: #8b5a3c;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .user-info p {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        /* Contenido Principal */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Sección de Bienvenida */
+        .welcome-banner {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #8b5a3c, #d4af37, #8b5a3c);
+        }
+
+        .welcome-title {
+            color: #8b5a3c;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .current-year {
+            background: linear-gradient(135deg, #8b5a3c, #d4af37);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(139, 90, 60, 0.3);
+        }
+
+        /* Grid de Módulos */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Tarjetas de Módulos */
+        .module-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 90, 60, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .module-card:hover::before {
+            left: 100%;
+        }
+
+        .module-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border-color: rgba(139, 90, 60, 0.3);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .module-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #8b5a3c, #d4af37);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(139, 90, 60, 0.3);
+        }
+
+        .module-title {
+            color: #8b5a3c;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .module-description {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .module-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .module-features li {
+            color: #555;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .module-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #d4af37;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .module-button {
+            width: 100%;
+            background: linear-gradient(135deg, #8b5a3c, #d4af37);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 90, 60, 0.3);
+        }
+
+        .module-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 90, 60, 0.4);
+        }
+
+        /* Footer */
+        .page-footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 2rem;
+        }
+
+        .footer-quote {
+            color: #8b5a3c;
+            font-size: 1.1rem;
+            font-style: italic;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-year {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .user-section {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-title {
+                font-size: 2rem;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content {
+                padding: 1rem;
+            }
+
+            .module-card {
+                padding: 1rem;
+            }
+
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Principal -->
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <img src="img/logo.png" alt="Hdad. Humildad y Paciencia" class="logo-img">
+                </div>
+                <div class="header-text">
+                    <h1>Hermandad Humildad y Paciencia - San Fernando (Cádiz)</h1>
+                    <p>Sistema de Gestión Integral</p>
+                </div>
+            </div>
+            
+            <div class="user-section">
+                <div class="user-avatar">AD</div>
+                <div class="user-info">
+                    <h3>Admin</h3>
+                    <p>Administrador</p>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="main-container">
+        <!-- Banner de Bienvenida -->
+        <div class="welcome-banner fade-in-up">
+            <h1 class="welcome-title">Bienvenido al Sistema</h1>
+            <p class="welcome-subtitle">Gestión Integral de Hermandad</p>
+            <div class="current-year">
+                <i class="fas fa-calendar-alt"></i>
+                Preparando la Semana Santa 2025
+            </div>
+        </div>
+
+        <!-- Grid de Módulos -->
+        <div class="modules-grid">
+            <!-- Gestión de Hermanos -->
+            <div class="module-card fade-in-up" onclick="navigateToModule('gestion_hermanos.html')" style="animation-delay: 0.1s">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h2 class="module-title">Gestión de Hermanos</h2>
+                </div>
+                <p class="module-description">
+                    Administra la información completa de todos los hermanos de la hermandad con herramientas avanzadas de gestión.
+                </p>
+                <ul class="module-features">
+                    <li>Listado completo de hermanos</li>
+                    <li>Alta y baja de hermanos</li>
+                    <li>Estado de cuotas detallado</li>
+                    <li>Censo actualizado</li>
+                    <li>Reportes personalizados</li>
+                </ul>                
+            </div>
+
+            <!-- Gestión de Cuotas -->
+            <div class="module-card fade-in-up" onclick="navigateToModule('gestion_cuotas.html')" style="animation-delay: 0.2s">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h2 class="module-title">Gestión de Contabilidad</h2>
+                </div>
+                <p class="module-description">
+                    Controla y supervisa el estado de pago de las cuotas con herramientas financieras completas.
+                </p>
+                <ul class="module-features">
+                    <li>Estado de pago de cuotas</li>
+                    <li>Generación de recibos</li>
+                    <li>Seguimiento de pagos</li>
+                    <li>Reportes financieros</li>
+                    <li>Notificaciones automáticas</li>
+                </ul>                
+            </div>
+
+            <!-- Salida Procesional -->
+            <div class="module-card fade-in-up" onclick="navigateToModule('gestion_procesion.html')" style="animation-delay: 0.3s">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <h2 class="module-title">Salida Procesional</h2>
+                </div>
+                <p class="module-description">
+                    Organiza y gestiona todo lo relacionado con la salida procesional de Semana Santa.
+                </p>
+                <ul class="module-features">
+                    <li>Gestión de túnicas y capas</li>                    
+                    <li>Estado actual del reparto</li>
+                    <li>Listados de secciones</li>
+                    <li>Orden de salida</li>
+                </ul>                
+            </div>
+
+            <!-- Listados -->
+            <div class="module-card fade-in-up" onclick="navigateToModule('listados.html')" style="animation-delay: 0.4s">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-list-alt"></i>
+                    </div>
+                    <h2 class="module-title">Listados e Informes</h2>
+                </div>
+                <p class="module-description">
+                    Genera y consulta diferentes tipos de listados e informes personalizados para la hermandad.
+                </p>
+                <ul class="module-features">
+                    <li>Listados personalizados</li>
+                    <li>Informes estadísticos</li>
+                    <li>Gráficos y estadísticas</li>
+                </ul>                
+            </div>
+
+            <!-- Configuración -->
+            <div class="module-card fade-in-up" onclick="navigateToModule('configuracion.html')" style="animation-delay: 0.5s">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h2 class="module-title">Configuración</h2>
+                </div>
+                <p class="module-description">
+                    Ajusta y personaliza las opciones del sistema según las necesidades específicas de la hermandad.
+                </p>
+                <ul class="module-features">
+                    <li>Configuración general</li>
+                    <li>Parámetros del sistema</li>
+                    <li>Gestión de usuarios</li>
+                    <li>Respaldos y seguridad</li>
+                    <li>Personalización</li>
+                </ul>                
+            </div>
+
+            <!-- Estadísticas
+            <div class="module-card fade-in-up" onclick="navigateToModule('estadisticas.php')" style="animation-delay: 0.6s">
+                <div class="module-header">
+                    <div class="module-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h2 class="module-title">Estadísticas</h2>
+                </div>
+                <p class="module-description">
+                    Visualiza estadísticas detalladas y métricas importantes de la hermandad en tiempo real.
+                </p>
+                <ul class="module-features">
+                    <li>Dashboard estadístico</li>
+                    <li>Métricas de membresía</li>
+                    <li>Análisis financiero</li>
+                    <li>Tendencias anuales</li>
+                    <li>Comparativas históricas</li>
+                </ul>
+                <button class="module-button">
+                    <i class="fas fa-arrow-right"></i> Ver Estadísticas
+                </button>
+            </div> -->
+        </div>
+
+        <!-- Footer -->
+        <footer class="page-footer fade-in-up" style="animation-delay: 0.7s">
+            <p class="footer-quote">
+                "Venerable Hermandad del Santisimo Cristo de Humildad y Paciencia, María Santísima de las Penas, San Juan Evangelista y 
+                Santa María Magdalena."
+            </p>
+            <p class="footer-year">Sistema de Gestión © 2025</p>
+        </footer>
+    </main>
+
+    <script>
+        // Función de navegación
+        function navigateToModule(url) {
+            // Efecto de transición suave
+            document.body.style.transition = 'opacity 0.3s ease';
+            document.body.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                window.location.href = url;
+            }, 200);
+        }
+
+        // Función de logout
+        function logout() {
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                // Aquí iría la lógica de logout
+                window.location.href = 'logout.php';
+            }
+        }
+
+        // Animaciones al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Efecto de entrada para las tarjetas
+            const cards = document.querySelectorAll('.fade-in-up');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                observer.observe(card);
+            });
+
+            // Mensaje de bienvenida en consola
+            console.log('🏛️ Sistema de Gestión de Hermandad cargado correctamente');
+            console.log('📅 Año actual:', new Date().getFullYear());
+            
+            // Verificar estado del sistema
+            checkSystemHealth();
+        });
+
+        // Función para verificar el estado del sistema
+        function checkSystemHealth() {
+            // Simulación de verificación del sistema
+            setTimeout(() => {
+                console.log('✅ Sistema funcionando correctamente');
+                showNotification('Sistema iniciado correctamente', 'success');
+            }, 1000);
+        }
+
+        // Sistema de notificaciones
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#28a745' : '#17a2b8'};
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 10000;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Mostrar notificación
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Ocultar notificación
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Efectos de hover mejorados
+        document.querySelectorAll('.module-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Prevenir clics dobles en botones
+        document.querySelectorAll('.module-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (this.disabled) return;
+                
+                this.disabled = true;
+                setTimeout(() => {
+                    this.disabled = false;
+                }, 1000);
+            });
+        });
+
+        // Actualizar año automáticamente
+        const currentYear = new Date().getFullYear();
+        document.querySelector('.current-year').innerHTML = `
+            <i class="fas fa-calendar-alt"></i>
+            Preparando la Semana Santa ${currentYear}
+        `;
+    </script>
+</body>
+</html>

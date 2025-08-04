@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Hermandad</title>
+    <style>
+        /* Reset y configuración general */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', serif;
+            background: linear-gradient(135deg, #4a148c 0%, #7b1fa2 50%, #8e24aa 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Fondo decorativo con motivos de Semana Santa */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Container principal del login */
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header del formulario con cruz */
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .escudo-icon {
+            
+			font-size: 0;          /* oculta el texto sobrante */
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin-bottom: 10px;			
+        }
+		
+		.escudo-img {
+			max-width: 200px;       /* ajusta este valor al tamaño deseado */
+			height: auto;
+			display: block;
+}
+
+        .login-title {
+            color: #4a148c;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* Estilos del formulario */
+        .login-form {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            color: #4a148c;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #7b1fa2;
+            box-shadow: 0 0 10px rgba(123, 31, 162, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Botón de login */
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4a148c 0%, #7b1fa2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(74, 20, 140, 0.4);
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 20, 140, 0.6);
+            background: linear-gradient(135deg, #6a1b9a 0%, #8e24aa 100%);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        /* Footer decorativo */
+        .login-footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #666;
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        /* Animación de entrada */
+        .login-container {
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Responsivo */
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 20px;
+                padding: 30px 25px;
+            }
+            
+            .cruz-icon {
+                font-size: 2.5rem;
+            }
+            
+            .login-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Container principal del formulario de login -->
+    <div class="login-container">
+        <!-- Header con cruz y título -->
+        <div class="login-header">
+            <div class="escudo-icon">
+				<img src="img/logo.png" alt="Hdad. Humildad y Paciencia" class="escudo-img">
+			</div>
+            <h1 class="login-title">Hermandad<br> Humildad y Paciencia</h1>
+            <p class="login-subtitle">Sistema de Gestión</p>
+        </div>
+
+        <!-- Formulario de autenticación -->
+        <form class="login-form" method="POST" action="login.php">
+            <!-- Campo de usuario -->
+            <div class="form-group">
+                <label for="usuario" class="form-label">Usuario</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="form-input" 
+                    required 
+                    placeholder="Ingrese su usuario"
+                >
+            </div>
+
+            <!-- Campo de contraseña -->
+            <div class="form-group">
+                <label for="password" class="form-label">Contraseña</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input" 
+                    required 
+                    placeholder="Ingrese su contraseña"
+                >
+            </div>
+
+            <!-- Botón de envío -->
+            <button type="submit" class="login-button">
+                Iniciar Sesión
+            </button>
+        </form>
+
+        <!-- Footer decorativo -->
+        <div class="login-footer">
+            "En el nombre del Padre, del Hijo y del Espíritu Santo"
+        </div>
+    </div>
+
+    <script>
+        // Script para mejorar la experiencia de usuario
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enfocar automáticamente el campo de usuario
+            const usuarioInput = document.getElementById('usuario');
+            usuarioInput.focus();
+
+            // Añadir efectos visuales al formulario
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                // Efecto de placeholder animado
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+
+                input.addEventListener('blur', function() {
+                    if (this.value === '') {
+                        this.parentElement.classList.remove('focused');
+                    }
+                });
+            });
+
+            // Validación básica del formulario
+            const form = document.querySelector('.login-form');
+            form.addEventListener('submit', function(e) {
+                const usuario = document.getElementById('usuario').value.trim();
+                const password = document.getElementById('password').value.trim();
+
+                if (usuario === '' || password === '') {
+                    e.preventDefault();
+                    alert('Por favor, complete todos los campos.');
+                    return false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
